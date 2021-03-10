@@ -1,1 +1,5 @@
-pytorch-lightning>=1.2.1
+pytorch-lightning
+deepspeed
+numpy
+psutil
+torch
