@@ -85,14 +85,14 @@ if __name__ == '__main__':
         args,
         max_epochs=1,
         gradient_clip_val=1.0,
-        plugins=DeepSpeedPlugin(
+        strategy=DeepSpeedPlugin(
             stage=3,
             offload_optimizer=True,
             offload_parameters=True,
             partition_activations=True,
             logging_level=logging.INFO
         ),
-        checkpoint_callback=False,
+        enable_checkpointing=False,
         callbacks=[lr_decay, CUDACallback()],
     )
     trainer.fit(model, train_loader)

@@ -23,7 +23,7 @@ class CUDACallback(Callback):
         pl_module.log('Peak CUDA Memory (GiB)', max_memory / 1000, prog_bar=True, on_step=True, sync_dist=True)
         pl_module.log(f"Average Virtual memory (GiB)", virt_mem, prog_bar=True, on_step=True, sync_dist=True)
 
-    def on_train_epoch_end(self, trainer, pl_module, outputs):
+    def on_train_epoch_end(self, trainer, pl_module):
         torch.cuda.synchronize(trainer.root_gpu)
         max_memory = torch.cuda.max_memory_allocated(trainer.root_gpu) / 2 ** 20
         epoch_time = time.time() - self.start_time
