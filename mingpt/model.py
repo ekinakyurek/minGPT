@@ -14,7 +14,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from deepspeed.ops.adam import FusedAdam
-from fairscale.nn import auto_wrap
+from fairscale.nn import wrap
 from torch.nn import functional as F
 
 logger = logging.getLogger(__name__)
@@ -159,7 +159,7 @@ class GPT(pl.LightningModule):
     def configure_sharded_model(self) -> None:
         blocks = []
         for x in range(self.config.n_layer):
-            layer = auto_wrap(Block(self.config), reshard_after_forward=True)
+            layer = wrap(Block(self.config), reshard_after_forward=True)
             blocks.append(layer)
         self.blocks = nn.Sequential(*blocks)
 
