@@ -82,7 +82,6 @@ if __name__ == '__main__':
         args,
         max_epochs=10,
         gradient_clip_val=1.0,
-        strategy='deepspeed_stage_3',
         callbacks=[lr_decay, CUDACallback()],
     )
     trainer.fit(model, train_loader)

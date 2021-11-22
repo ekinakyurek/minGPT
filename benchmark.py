@@ -55,7 +55,6 @@ if __name__ == '__main__':
     parser.add_argument('--block_size', default=128, type=int)
     parser.add_argument('--batch_size', default=4, type=int)
     parser.add_argument('--num_workers', default=0, type=int)
-    parser.add_argument('--cpu_offload', action='store_true')
     args = parser.parse_args()
 
     if not os.path.exists("input.txt"):

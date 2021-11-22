@@ -14,7 +14,7 @@ import deepspeed
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from deepspeed.ops.adam import DeepSpeedCPUAdam
+from deepspeed.ops.adam import FusedAdam
 from torch.nn import functional as F
 
 logger = logging.getLogger(__name__)
@@ -170,7 +170,7 @@ class GPT(pl.LightningModule):
             {"params": params_decay, "weight_decay": self.hparams.weight_decay},
             {"params": params_nodecay, "weight_decay": 0.0},
         ]
-        optimizer = DeepSpeedCPUAdam(optim_groups, lr=self.hparams.learning_rate, betas=self.hparams.betas)
+        optimizer = FusedAdam(optim_groups, lr=self.hparams.learning_rate, betas=self.hparams.betas)
         return optimizer
 
     def forward(self, idx):

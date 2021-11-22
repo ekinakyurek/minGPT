@@ -14,24 +14,34 @@ In the below examples batch size is set to 1 to try reduce VRAM as much as possi
 
 For 20B/45B parameter models, you'll need a reasonable amount of CPU RAM as we offload partitions to the CPU. For the 45B parameter model, you'll need around 1TB of CPU memory which is the default for the p4d.24xlarge instance in AWS (roughly 9 dollars an hour for a spot instance).
 
+##### 453M (Requires around 3GiB per 8 GPUs, 10GiB for 1 GPU)
+
+In this example we use Stage 2 by default, since it's faster (remains the same speed parity as DDP, but with more memory savings with multiple GPUs).
+
+If you want even more savings with multiple GPUs, swap `--strategy deepspeed_stage 3`.
+
+```bash
+python train.py --n_layer 4 --n_head 16 --n_embd 3072 --gpus 1 --precision 16 --batch_size 1 --strategy deepspeed_stage_2
+```
+
 ##### 1.7B (Requires around 2GiB per 8 GPUs, 5.1GiB for 1 GPU)
 ```bash
-python train.py --n_layer 15 --n_head 16 --n_embd 3072 --gpus 8 --precision 16 --batch_size 1
+python train.py --n_layer 15 --n_head 16 --n_embd 3072 --gpus 8 --precision 16 --batch_size 1 --strategy deepspeed_stage_3
 ```
 
 ##### ~10B (Requires around 6GiB per 8 GPUs, 26GiB for 1 GPU)
 ```bash
-python train.py --n_layer 13 --n_head 16 --n_embd 8192 --gpus 8 --precision 16 --batch_size 1
+python train.py --n_layer 13 --n_head 16 --n_embd 8192 --gpus 8 --precision 16 --batch_size 1 --strategy deepspeed_stage_3
 ```
 
 ##### ~20B (Requires around 8GiB per 8 GPUs, OOM for 1 GPU, offloading onto ~500GB of CPU RAM)
 ```bash
-python train.py --n_layer 25 --n_head 16 --n_embd 8192 --gpus 8 --precision 16 --batch_size 1
+python train.py --n_layer 25 --n_head 16 --n_embd 8192 --gpus 8 --precision 16 --batch_size 1 --strategy deepspeed_stage_3
 ```
 
 ##### ~45B (Requires around 14GiB per 8 GPUs, 26GiB for 1 GPU, offloading onto ~950GB of CPU RAM)
 ```bash
-python train.py --n_layer 56 --n_head 16 --n_embd 8192 --gpus 8 --precision 16 --batch_size 1
+python train.py --n_layer 56 --n_head 16 --n_embd 8192 --gpus 8 --precision 16 --batch_size 1 --strategy deepspeed_stage_3
 ```
 
 ### Benchmark Results
