@@ -3,3 +3,4 @@ deepspeed==0.5.7
 numpy
 psutil
 torch
+pathlib

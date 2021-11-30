@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     print("loading model checkpoint")
     chk_path = "./checkpoints"
-    chk_pts = sorted(Path(chk_path).glob("epoch*.ckpt"))
+    chk_pts = sorted(Path(chk_path).glob("*.ckpt"))
     print("all available checkpoints: ", chk_pts)
     model = GPT.load_from_checkpoint(checkpoint_path=f'{chk_pts[-1]}/')
     print("finished loading monitor. LR: ", model.learning_rate)
