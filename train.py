@@ -13,7 +13,7 @@ from torch.utils.data import Dataset, DataLoader
 from mingpt.callback import CUDACallback
 from mingpt.lr_decay import LearningRateDecayCallback
 from mingpt.model import GPT
-
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 class CharDataset(Dataset):
 
@@ -78,10 +78,21 @@ if __name__ == '__main__':
         final_tokens=2 * len(train_dataset) * args.block_size
     )
 
+    chk_path = "./checkpoints"
+    checkpoint_callback = ModelCheckpoint(
+        dirpath=chk_path,
+        # save_best_only=False,
+        filename="{epoch}", 
+        monitor='train_loss',
+        save_last=True,
+        save_top_k=3)
+
     trainer = Trainer.from_argparse_args(
         args,
-        max_epochs=10,
+        default_root_dir=chk_path,
+        max_epochs=5,
         gradient_clip_val=1.0,
-        callbacks=[lr_decay, CUDACallback()],
+        limit_train_batches=5,
+        callbacks=[lr_decay, CUDACallback(), checkpoint_callback],
     )
     trainer.fit(model, train_loader)
