@@ -9,7 +9,7 @@ GPT model:
 
 import logging
 import math
-
+from torchmetrics.functional import accuracy
 import deepspeed
 import pytorch_lightning as pl
 import torch
@@ -199,3 +199,31 @@ class GPT(pl.LightningModule):
 
         self.log('train_loss', loss)
         return loss
+
+    def _shared_eval_step(self, batch, batch_idx):
+        idx, targets = batch
+        
+        # same action as inference
+        logits = self(idx)
+
+        # if we are given some desired targets also calculate the loss
+        loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
+        acc = accuracy(logits.view(-1, logits.size(-1)), targets.view(-1))
+        return loss, acc
+
+    def validation_step(self, batch, batch_idx):
+        loss, acc = self._shared_eval_step(batch, batch_idx)
+        metrics = {"val_acc": acc, "val_loss": loss}
+        self.log_dict(metrics)
+        return metrics
+        
+    def test_step(self, batch, batch_idx):
+        loss, acc = self._shared_eval_step(batch, batch_idx)
+        metrics = {"test_acc": acc, "test_loss": loss}
+        self.log_dict(metrics)
+        return metrics
+
+
+    def on_load_checkpoint(self, checkpoint):
+        if not hasattr(self, "blocks"):
+            self.configure_sharded_model()

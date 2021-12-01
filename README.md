@@ -44,6 +44,15 @@ python train.py --n_layer 25 --n_head 16 --n_embd 8192 --gpus 8 --precision 16 -
 python train.py --n_layer 56 --n_head 16 --n_embd 8192 --gpus 8 --precision 16 --batch_size 1 --strategy deepspeed_stage_3
 ```
 
+### Model Loading and Evaluation
+The best model is checkpointed during the training process and stored by default in "checkpoints" directory. With DeepSpeed the model checkpoints are saved as directories, which can cause some issues when trying to load model/trainers from Pytorch Lightning checkpoints. To properly restore the model and run trainer tests, call the evaluate.py file with similar arguments to the train script: 
+
+```bash
+python evaluate.py --gpus 1 --precision 16 --batch_size 1 --strategy deepspeed_stage_2
+```
+
+This will first convert the model checkpoint directory into a single model .pt file, then load the trainer using deepspeed_stage_2, and run the test set. For simplicity of this example, the test set is identical to the training set.  
+
 ### Benchmark Results
 
 #### Maximum DeepSpeed!

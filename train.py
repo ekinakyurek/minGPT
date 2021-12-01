@@ -8,12 +8,13 @@ from pytorch_lightning import Trainer
 from pytorch_lightning import seed_everything
 from pytorch_lightning.plugins import DeepSpeedPlugin
 from pytorch_lightning.utilities import rank_zero_info
+from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import Dataset, DataLoader
 
 from mingpt.callback import CUDACallback
 from mingpt.lr_decay import LearningRateDecayCallback
 from mingpt.model import GPT
-from pytorch_lightning.callbacks import ModelCheckpoint
+
 
 class CharDataset(Dataset):
 
@@ -53,6 +54,8 @@ if __name__ == '__main__':
     parser.add_argument('--block_size', default=128, type=int)
     parser.add_argument('--batch_size', default=1, type=int)
     parser.add_argument('--num_workers', default=0, type=int)
+    parser.add_argument('--checkpoint', default="./checkpoints", type=str)
+    parser.add_argument('--save_top_k', default=1, type=int)
     args = parser.parse_args()
 
     if not os.path.exists("input.txt"):
@@ -71,6 +74,14 @@ if __name__ == '__main__':
         n_embd=args.n_embd,
         learning_rate=args.learning_rate
     )
+    # save top N models by train_loss, as well as the final epoch model saved to "last.ckpt"
+    # TODO: Save val_loss instead 
+    checkpoint_callback = ModelCheckpoint(
+        dirpath=args.checkpoint,
+        filename="{epoch}", 
+        monitor='train_loss',
+        save_last=True,
+        save_top_k=args.save_top_k)
 
     lr_decay = LearningRateDecayCallback(
         learning_rate=6e-4,
@@ -78,21 +89,10 @@ if __name__ == '__main__':
         final_tokens=2 * len(train_dataset) * args.block_size
     )
 
-    chk_path = "./checkpoints"
-    checkpoint_callback = ModelCheckpoint(
-        dirpath=chk_path,
-        # save_best_only=False,
-        filename="{epoch}", 
-        monitor='train_loss',
-        save_last=True,
-        save_top_k=3)
-
     trainer = Trainer.from_argparse_args(
         args,
-        default_root_dir=chk_path,
-        max_epochs=5,
+        max_epochs=args.max_epochs if args.max_epochs is not None else 10,
         gradient_clip_val=1.0,
-        limit_train_batches=5,
         callbacks=[lr_decay, CUDACallback(), checkpoint_callback],
     )
     trainer.fit(model, train_loader)
