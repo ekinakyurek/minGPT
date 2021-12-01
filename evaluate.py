@@ -1,10 +1,8 @@
 import math
 import os
 from argparse import ArgumentParser
-import pathlib
 from pytorch_lightning import Trainer
 from mingpt.model import GPT
-from pathlib import Path
 from train import CharDataset
 from torch.utils.data import Dataset, DataLoader
 from pytorch_lightning import seed_everything
@@ -12,18 +10,17 @@ from pytorch_lightning import seed_everything
 # here we convert the directory into a single model weight checkpoint inside the directory
 # https://pytorch-lightning.readthedocs.io/en/stable/advanced/advanced_gpu.html#collating-single-file-checkpoint-for-deepspeed-zero-stage-3
 # Note: trainer.fit(ckpt_path=SINGLE_FILE) will not work. Instead, you have to point at the checkpoint directory
-def convert_directory_chkpt_to_file(mpath):
+def convert_directory_chkpt_to_file(dir_path):
     from pytorch_lightning.utilities.deepspeed import convert_zero_checkpoint_to_fp32_state_dict
-    dir_path = Path(mpath)
-    model_path = Path(mpath, 'model_checkpoint.pt')
-    if dir_path.is_dir() and not model_path.exists():
+    model_path = os.path.join(dir_path, 'model_checkpoint.pt')
+    if os.path.isdir(dir_path) and not os.path.exists(model_path):
         # convert directory to single model pytorch 
         convert_zero_checkpoint_to_fp32_state_dict(dir_path, model_path)
     return model_path
 
 if __name__ == '__main__':
     seed_everything(42)
-    
+
     import os
     parser = ArgumentParser()
     parser = Trainer.add_argparse_args(parser)
@@ -51,5 +48,3 @@ if __name__ == '__main__':
 
     # attempt to run test with existing model
     trainer.test(model, dataloaders=test_loader)
-    
-    
