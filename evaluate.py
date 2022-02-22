@@ -39,10 +39,12 @@ if __name__ == '__main__':
     # this loads the trainer
     trainer = Trainer.from_argparse_args(args)
 
-    if not os.path.exists("input.txt"):
-        os.system("wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt")
+    # if not os.path.exists("input.txt"):
+    #     os.system("wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt")
 
-    text = open('input.txt', 'r').read()  # don't worry we won't run out of file handles
+    # you can download this file at https://github.com/karpathy/char-rnn/blob/master/data/tinyshakespeare/input.txt
+    text = open('datasets/SimpleKB/corpus.txt', 'r').read()  # don't worry we won't run out of file handles
+    text = text.split()
     test_dataset = CharDataset(text, model.config.block_size)  # one line of poem is roughly 50 characters
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
 

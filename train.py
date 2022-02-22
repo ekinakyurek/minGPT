@@ -58,11 +58,12 @@ if __name__ == '__main__':
     parser.add_argument('--save_top_k', default=1, type=int)
     args = parser.parse_args()
 
-    if not os.path.exists("input.txt"):
-        os.system("wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt")
+    # if not os.path.exists("input.txt"):
+    #     os.system("wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt")
 
     # you can download this file at https://github.com/karpathy/char-rnn/blob/master/data/tinyshakespeare/input.txt
-    text = open('input.txt', 'r').read()  # don't worry we won't run out of file handles
+    text = open('datasets/SimpleKB/corpus.txt', 'r').read()  # don't worry we won't run out of file handles
+    text = text.split()
     train_dataset = CharDataset(text, args.block_size)  # one line of poem is roughly 50 characters
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
 
